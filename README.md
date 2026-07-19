@@ -71,25 +71,31 @@ hypotheses → experiments that *eliminate* rather than confirm → fix → prov
 bugs. Keeps a hypothesis log so long sessions never re-test eliminated ideas.
 Refuses to ship a fix without a causal chain.
 
-> *Recorded session (real, verbatim-condensed): crew-debugger on the same
-> production markdown bug crew-reviewer flagged — reproduced offline, root-
-> caused, and proven with parse5 (the browser tokenizer) as ground truth.*
+> *Recorded session (real, verbatim-condensed): crew-debugger on a real
+> production incident — a fulfillment failure that got an order permanently
+> stuck. No live APIs: it ran the real engine as a child process with only the
+> network faked, replaying the verbatim production error.*
 > ```
-> crew-debugger — image src attribute injection (store markdown renderer)
+> Incident: fulfillment logged FAILED ... invite <owner> -> 422
+>   "Repository owner cannot be a collaborator" when the store owner
+>   test-bought their own product. The catch path marked the session
+>   processed → TERMINAL: ledger needs_attention, no retry.
 >
-> Repro (offline): ![x](/a.png"onerror=alert;//) →
->   <img src="/a.png"onerror=alert;//" ...>  ← parse5 confirms a LIVE onerror
->
+> Repro (decision path, not HTTP): real fulfill.js as a child process,
+>   global.fetch stubbed to documented PUT-collaborator semantics + the
+>   verbatim 422 body. Symptom reproduced byte-identically.
 > Hypotheses:
->   H1 image path interpolates src without escaping (alt IS escaped) — CONFIRMED
->   H2 the scheme allow-list leaks javascript:  — ELIMINATED (renders empty)
->   H3 the link path is the unsafe one            — ELIMINATED (inline() escapes first)
-> Causal chain: allow-listed src containing a " closes src="..." early; the
->   tokenizer's missing-whitespace recovery reads the rest as new attributes.
-> Fix: escapeHtml(src) at md.js:51. Before: 13 pass/1 new-test fail;
->   after: 14/0. Legit src (./assets/...) unchanged.
-> Sibling sweep: build.js:74 interpolates payment_link into href with the same
->   unescaped pattern — lower severity (config-controlled), flagged + fixed.
+>   H1 wrong username/repo plumbing — ELIMINATED (prod state shows correct
+>      field + grant flowed through; engine did the right thing)
+>   H2 no owner-self-purchase guard   — CONFIRMED (invites unconditionally)
+>   H3 token/API misuse               — ELIMINATED (422-custom, not 401/403;
+>      docs confirm request shape + 201/204 handling correct)
+> Fix: isRepoOwner() guard — owner buys → fulfilled, no invite. Regression
+>   test fails before, passes after; control test pins normal buyers to 1 invite.
+> Sibling sweep: refund bot already guards the same case; a dead duplicate
+>   core file (drift hazard) flagged for deletion; the deeper debt — ANY
+>   failure is terminal because processed.push runs in the catch path, so a
+>   transient 5xx never retries. Named for a deliberate decision.
 > ```
 
 **`crew-planner` — options, then a plan.** For tasks where the approach itself
