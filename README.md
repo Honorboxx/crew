@@ -71,16 +71,25 @@ hypotheses → experiments that *eliminate* rather than confirm → fix → prov
 bugs. Keeps a hypothesis log so long sessions never re-test eliminated ideas.
 Refuses to ship a fix without a causal chain.
 
-> *Example transcript (illustrative):*
+> *Recorded session (real, verbatim-condensed): crew-debugger on the same
+> production markdown bug crew-reviewer flagged — reproduced offline, root-
+> caused, and proven with parse5 (the browser tokenizer) as ground truth.*
 > ```
-> > tests pass locally but CI fails on test_export, dispatch crew-debugger
+> crew-debugger — image src attribute injection (store markdown renderer)
 >
-> ⏺ crew-debugger: root cause found, evidence attached.
->   Chain: CI runs UTC → export_date() formats "tomorrow" after 22:00 local
->   → fixture expects today. Repro: TZ=UTC pytest test_export.py (fails).
->   Eliminated: flaky I/O (10/10 pass with TZ pinned), dependency drift
->   (lockfiles identical). Fix: format from the order's timezone, not the
->   host's. Regression test added — fails on old code, output pasted.
+> Repro (offline): ![x](/a.png"onerror=alert;//) →
+>   <img src="/a.png"onerror=alert;//" ...>  ← parse5 confirms a LIVE onerror
+>
+> Hypotheses:
+>   H1 image path interpolates src without escaping (alt IS escaped) — CONFIRMED
+>   H2 the scheme allow-list leaks javascript:  — ELIMINATED (renders empty)
+>   H3 the link path is the unsafe one            — ELIMINATED (inline() escapes first)
+> Causal chain: allow-listed src containing a " closes src="..." early; the
+>   tokenizer's missing-whitespace recovery reads the rest as new attributes.
+> Fix: escapeHtml(src) at md.js:51. Before: 13 pass/1 new-test fail;
+>   after: 14/0. Legit src (./assets/...) unchanged.
+> Sibling sweep: build.js:74 interpolates payment_link into href with the same
+>   unescaped pattern — lower severity (config-controlled), flagged + fixed.
 > ```
 
 **`crew-planner` — options, then a plan.** For tasks where the approach itself
