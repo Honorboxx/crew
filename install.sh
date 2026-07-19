@@ -77,6 +77,12 @@ points_into_repo() {  # a symlink into this checkout is crew's
 
 unmodified() {  # $1 = installed path, $2 = recorded tag: still as crew left it?
   if [ -L "$1" ]; then
+    # The manifest recording "link" is what makes this symlink ours: it is
+    # still a symlink, so it is untouched. Requiring it to point into THIS
+    # checkout would call every link foreign after the repo is moved or
+    # re-cloned, which orphaned files on uninstall. Fall back to the target
+    # check only for links installed before manifests existed.
+    if [ "$2" = link ]; then return 0; fi
     points_into_repo "$1"
   else
     [ "$2" != link ] && [ "$(sum_of "$1")" = "$2" ]
@@ -86,6 +92,7 @@ unmodified() {  # $1 = installed path, $2 = recorded tag: still as crew left it?
 # ---------- uninstall ----------
 if [ "$UNINSTALL" = 1 ]; then
   [ -f "$MANIFEST" ] || { say "nothing to do: no manifest at $MANIFEST"; exit 0; }
+  KEPT_MANIFEST=""
   while IFS= read -r line; do
     [ -n "$line" ] || continue
     path=${line%%"$TAB"*} tag=${line#*"$TAB"}
@@ -95,10 +102,20 @@ if [ "$UNINSTALL" = 1 ]; then
       run rm -rf -- "$path"
     else
       say "keep    $path (you modified it — remove by hand or use --force)"
+      KEPT_MANIFEST="${KEPT_MANIFEST}${path}${TAB}${tag}
+"
     fi
   done < "$MANIFEST"
-  say "remove  $MANIFEST"
-  run rm -f -- "$MANIFEST"
+  # Dropping the manifest while files are still installed would orphan them:
+  # a later uninstall finds no manifest and reports nothing to do, leaving the
+  # user to clean up by hand. Keep tracking whatever we kept.
+  if [ -n "$KEPT_MANIFEST" ]; then
+    say "keep    $MANIFEST (still tracking the files above; --force removes them)"
+    [ "$DRY" = 1 ] || printf '%s' "$KEPT_MANIFEST" > "$MANIFEST"
+  else
+    say "remove  $MANIFEST"
+    run rm -f -- "$MANIFEST"
+  fi
   [ "$DRY" = 1 ] && say "dry run — nothing was removed." || say "uninstalled."
   exit 0
 fi
