@@ -37,19 +37,32 @@ because most review-detectable bugs are in unchanged code whose assumptions
 just broke. Findings ranked P0/P1/P2 with a concrete failing scenario each,
 plus an explicit "checked and clean" list. Won't manufacture nits.
 
-> *Example transcript (illustrative — not a recorded session):*
+> *Recorded session (real, verbatim-condensed): crew-reviewer on a shipped
+> commit of the store this pack funds — a markdown image/gallery feature the
+> author had marked "(tested)". It found two P1s and a P2 in production code;
+> all three were fixed the same hour.*
 > ```
-> > have crew-reviewer look at my branch before I open the PR
+> crew-reviewer on 936ae3b "theme preview gallery" — verdict: fix before
+> relying on it. Ran the suite (13/13 green) and the build (clean), then
+> drove renderMarkdown with adversarial input.
 >
-> ⏺ crew-reviewer: 2 findings, 1 question.
->   P0 src/billing.py:142 — retry loop re-sends the charge on timeout, but
->      the first attempt may have succeeded server-side. Scenario: timeout
->      after Stripe accepts → double charge. Fix: idempotency key per order.
->   P2 src/billing.py:98 — money compared as float; safe today, breaks the
->      day a discount yields a non-integer cent value.
->   Q  is orders.retry_count meant to survive process restart? It's memory-only.
->   Checked and clean: error paths, all 7 callers of the changed signature,
->   the new test fails when the fix is reverted.
+> P1 scripts/lib/md.js:51 — image src interpolated raw into <img src="...">
+>    while every other URL sink in the file is escaped. Demonstrated:
+>    ![x](/a.png"onerror="alert(1) → <img src="/a.png"onerror="alert(1"...>
+>    — an injected handler. The scheme allowlist doesn't help: the payload
+>    starts with "/". Fix: escapeHtml the URL like link hrefs already do.
+> P1 scripts/test/core.test.js:144 — the safety test is decoration: its
+>    payload has a paren in the URL, so it fails the image-line regex and
+>    never reaches the new filter; delete the filter and the test still
+>    passes. Fix: paren-free unsafe src that actually hits the code path.
+> P2 md.js:47-54 — an image run whose srcs are all rejected vanishes
+>    silently: green build, missing content, zero signal.
+>
+> Checked and clean: both renderMarkdown callers wrap output in .prose so
+> the new CSS applies (verified in dist/); 4 consecutive images group into
+> one gallery, single → figure; block ordering doesn't mis-swallow
+> paragraphs; alt text IS escaped; assets/ passthrough resolves; build
+> idempotent; 13/13 existing tests meaningful except the one above.
 > ```
 
 **`crew-debugger` — root cause with receipts.** Reproduce → shrink → ranked
