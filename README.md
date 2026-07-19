@@ -1,0 +1,181 @@
+# Crew
+
+**Three specialist subagents and three skills for Claude Code — code review,
+debugging, planning, and the discipline around them. Distilled from a working
+production setup.**
+
+These are prompt files, not magic: they plug into Claude Code's native
+subagent (`.claude/agents/`) and skill (`.claude/skills/`) machinery and make
+it do disciplined work — reviews that hunt outside the diff, debugging that
+proves the cause before fixing, "done" that requires evidence. Each file is
+written to a bar of: concrete method, failure-mode table, definition of done.
+No filler.
+
+## Install (60 seconds)
+
+```bash
+git clone https://github.com/Honorboxx/crew && cd crew
+sh install.sh
+```
+
+That's it — the installer symlinks the pack into `~/.claude` (so `git pull`
+updates it), tracks everything it installs in a manifest, and will not touch
+files it doesn't own. `sh install.sh --dry-run` shows the plan first;
+`--copy` detaches from the checkout; `--uninstall` removes exactly what it
+installed; `--target some/project/.claude` installs per-project instead.
+POSIX sh, zero dependencies.
+
+## What's in the box
+
+Everything is `crew-`prefixed so it never collides with your other packs.
+
+### Agents (dispatched with a fresh context, report back)
+
+**`crew-reviewer` — correctness pass.** Reads your diff three times: intent,
+adversarial, and *outside the diff* — greps callers of everything you changed,
+because most review-detectable bugs are in unchanged code whose assumptions
+just broke. Findings ranked P0/P1/P2 with a concrete failing scenario each,
+plus an explicit "checked and clean" list. Won't manufacture nits.
+
+> *Example transcript (illustrative — not a recorded session):*
+> ```
+> > have crew-reviewer look at my branch before I open the PR
+>
+> ⏺ crew-reviewer: 2 findings, 1 question.
+>   P0 src/billing.py:142 — retry loop re-sends the charge on timeout, but
+>      the first attempt may have succeeded server-side. Scenario: timeout
+>      after Stripe accepts → double charge. Fix: idempotency key per order.
+>   P2 src/billing.py:98 — money compared as float; safe today, breaks the
+>      day a discount yields a non-integer cent value.
+>   Q  is orders.retry_count meant to survive process restart? It's memory-only.
+>   Checked and clean: error paths, all 7 callers of the changed signature,
+>   the new test fails when the fix is reverted.
+> ```
+
+**`crew-debugger` — root cause with receipts.** Reproduce → shrink → ranked
+hypotheses → experiments that *eliminate* rather than confirm → fix → prove
+(repro fails before, passes after, both outputs shown) → sweep for sibling
+bugs. Keeps a hypothesis log so long sessions never re-test eliminated ideas.
+Refuses to ship a fix without a causal chain.
+
+> *Example transcript (illustrative):*
+> ```
+> > tests pass locally but CI fails on test_export, dispatch crew-debugger
+>
+> ⏺ crew-debugger: root cause found, evidence attached.
+>   Chain: CI runs UTC → export_date() formats "tomorrow" after 22:00 local
+>   → fixture expects today. Repro: TZ=UTC pytest test_export.py (fails).
+>   Eliminated: flaky I/O (10/10 pass with TZ pinned), dependency drift
+>   (lockfiles identical). Fix: format from the order's timezone, not the
+>   host's. Regression test added — fails on old code, output pasted.
+> ```
+
+**`crew-planner` — options, then a plan.** For tasks where the approach itself
+is a decision. Recon in the codebase first, 2–3 genuinely different options
+with the rejected one and why, then steps sized by risk — every step with an
+observable done-check — and the section that matters most: explicit non-goals.
+
+> *Example transcript (illustrative):*
+> ```
+> > plan the move from polling to webhooks with crew-planner
+>
+> ⏺ crew-planner: Option A keep polling + shrink interval (no new infra,
+>   stays 30s-stale), Option B webhooks + polling fallback (chosen: real-time
+>   where it matters, poller becomes the safety net), Option C webhooks only
+>   (rejected: one missed delivery = silent data loss).
+>   Plan: 5 steps, each with a done-check; riskiest first (signature
+>   verification spike). Non-goals: no queue infra this round, no backfill.
+> ```
+
+### Skills (disciplines you invoke inline)
+
+**`crew-verify` — evidence before claims.** The gate between finishing work
+and describing work. Turns each claim ("fixed", "passing", "works") into the
+cheapest observation that would prove it, made *this session* — and includes
+the trick most setups miss: verify the verifier (green that can't go red is
+not evidence). Anything unobserved ships labeled "changed, not verified".
+
+> *Example (illustrative):*
+> ```
+> > /crew-verify then commit
+> ⏺ Claims: (1) --target flag works (2) tests pass (3) README accurate.
+>   (1) ran install.sh --target /tmp/p/.claude → 6 installed, links resolve ✓
+>   (2) 47 passed — then reverted the fix for one run: 2 failed ✓ tests do
+>       cover the change
+>   (3) re-ran all 4 README commands as written ✓
+>   Committing.
+> ```
+
+**`crew-scope` — size first, then plan that much.** S/M/L sizing by counting
+plausible designs, a 5-line mini-plan for M tasks (every line objection-bait),
+dispatch the planner for L. Kills both failure modes: coding an L blind, and
+planning theater on an S. Plus the mid-task rule for "while I'm here" creep:
+park it, don't chase it.
+
+> *Example (illustrative):*
+> ```
+> > add a --json flag to the report command
+> ⏺ crew-scope: M (one approach, three files).
+>   Goal: report --json emits machine-readable output, exit codes unchanged.
+>   Touches: cli.py, report.py, test_report.py
+>   Risk: existing consumers parse stdout — keeping default output identical.
+>   Non-goal: no schema versioning this round.
+> ```
+
+**`crew-git` — history as a communication act.** Atomic commits tested by
+"can this revert alone", the staged-diff read-through (the medium switch that
+catches debug prints), why-not-what messages, and a safe-repair table —
+including the rule that matters when it matters: a leaked secret is *rotated
+first*; history rewriting is only tidying.
+
+> *Example (illustrative):*
+> ```
+> > commit this
+> ⏺ crew-git: staged diff read-through first… found a stray console.log at
+>   parser.js:88 and an unrelated rename mixed in. Unstaging the rename —
+>   it goes in its own commit so the logic diff stays reviewable.
+>   Commit 1: "Treat empty config as defaults, not error" (the why is in
+>   the body). Commit 2: "Rename parse_cfg → parse_config (mechanical)".
+> ```
+
+## Free vs full
+
+This repo is the free tier, and it's genuinely useful alone. The full pack is
+the whole system — the same bar, ten agents and fourteen skills that
+cross-reference each other, plus hooks and starter templates.
+
+| | Crew (this repo) | [Crew Full — $19](https://honorboxx.github.io/honorbox/crew.html) |
+|---|---|---|
+| Agents | 3: reviewer, debugger, planner | 10: + simplifier (second review pass), tester, perf, security, refactorer, docs, release captain |
+| Skills | 3: verify, scope, git | 14: + TDD, debug loop, self-review, PR authoring, changelog, release, docs pass, refactor, perf triage, security pass, handoff |
+| Hook examples | — | 3, safe and commented (git guard, secret shield, format-on-edit) |
+| CLAUDE.md starter templates | — | solo + team variants |
+| Design doc | — | ROSTER.md: every agent/skill mapped to a job and a boundary |
+| Installer | this one | same one, covering the full pack |
+| Updates | `git pull` | private repo access; updates land there |
+| License | MIT | per-developer commercial |
+
+Buying replaces the six free files with superset versions (added
+cross-references into the full system) — the installer handles it cleanly.
+
+## Honest limits
+
+- These improve *discipline*, not model capability. A model that can't find a
+  bug won't find it because a prompt told it to be systematic — but it will
+  stop claiming "fixed" without running the repro.
+- Agents inherit your configured model and burn tokens like any subagent;
+  the reviewer pass on a big diff is not free.
+- Written for Claude Code's agent/skill format. Other tools may read the
+  markdown fine, but the dispatch/invoke mechanics are Claude Code's.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+*Repo description, for the fork bar: "Specialist subagents and skills for
+Claude Code — rigorous code review, systematic debugging, planning, and
+verification discipline. Free tier of Crew."*
+*Topics: `claude-code` `claude` `subagents` `agents` `skills` `code-review`
+`debugging` `developer-tools`*
