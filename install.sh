@@ -1,13 +1,13 @@
 #!/bin/sh
-# Crew installer — links (default) or copies the pack into your Claude Code config.
+# Crew installer: links (default) or copies the pack into your Claude Code config.
 #
 # Zero dependencies, POSIX sh. Safe to re-run. Never touches what it does not
 # own: installs are tracked in a manifest ($TARGET/.crew-manifest) together
 # with a content checksum, so re-installs refresh crew's own files, prune
-# files dropped from the pack, and refuse — without --force — to replace
+# files dropped from the pack, and refuse (without --force) to replace
 # either files crew never installed or crew files you edited afterwards.
 #
-#   sh install.sh              install (symlinks — a `git pull` here updates in place)
+#   sh install.sh              install (symlinks, so a `git pull` here updates in place)
 #   sh install.sh --copy      install by copying (independent of this checkout)
 #   sh install.sh --dry-run   print every action, change nothing
 #   sh install.sh --force     also replace conflicting or user-modified files
@@ -45,9 +45,9 @@ REPO=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || die "cannot resolve repo di
 MANIFEST="$TARGET/.crew-manifest"
 
 [ -d "$REPO/agents" ] && [ -d "$REPO/skills" ] \
-  || die "no agents/ + skills/ next to install.sh — run it from a crew checkout"
+  || die "no agents/ + skills/ next to install.sh (run it from a crew checkout)"
 
-# run CMD... — execute, or narrate under --dry-run
+# run CMD... executes, or narrates under --dry-run
 run() {
   if [ "$DRY" = 1 ]; then say "  [dry-run] $*"; else "$@"; fi
 }
@@ -101,7 +101,7 @@ if [ "$UNINSTALL" = 1 ]; then
       say "remove  $path"
       run rm -rf -- "$path"
     else
-      say "keep    $path (you modified it — remove by hand or use --force)"
+      say "keep    $path (you modified it; remove by hand or use --force)"
       KEPT_MANIFEST="${KEPT_MANIFEST}${path}${TAB}${tag}
 "
     fi
@@ -116,7 +116,7 @@ if [ "$UNINSTALL" = 1 ]; then
     say "remove  $MANIFEST"
     run rm -f -- "$MANIFEST"
   fi
-  [ "$DRY" = 1 ] && say "dry run — nothing was removed." || say "uninstalled."
+  [ "$DRY" = 1 ] && say "dry run: nothing was removed." || say "uninstalled."
   exit 0
 fi
 
@@ -132,13 +132,13 @@ install_one() {  # $1 = source (file or dir), $2 = destination
       say "force   $dst (replacing a file crew does not own as-is)"
       run rm -rf -- "$dst"
     elif [ -n "$tag" ]; then
-      say "CONFLICT $dst was modified after crew installed it — skipped (--force overwrites your edits)"
+      say "CONFLICT $dst was modified after crew installed it; skipped (--force overwrites your edits)"
       CONFLICTS=$((CONFLICTS + 1))
       NEW_MANIFEST="${NEW_MANIFEST}${dst}${TAB}${tag}
 "                                     # keep tracking it under its old tag
       return 0
     else
-      say "CONFLICT $dst exists and crew does not own it — skipped (--force to replace)"
+      say "CONFLICT $dst exists and crew does not own it; skipped (--force to replace)"
       CONFLICTS=$((CONFLICTS + 1)); return 0
     fi
   fi
@@ -156,7 +156,7 @@ install_one() {  # $1 = source (file or dir), $2 = destination
   fi
 }
 
-say "crew installer — mode: $MODE, target: $TARGET$( [ "$DRY" = 1 ] && printf ' (dry run)' )"
+say "crew installer: $MODE mode, target $TARGET$( [ "$DRY" = 1 ] && printf ' (dry run)' )"
 run mkdir -p -- "$TARGET/agents" "$TARGET/skills"
 
 for f in "$REPO"/agents/*.md; do
@@ -181,7 +181,7 @@ if [ -f "$MANIFEST" ]; then
       run rm -rf -- "$old"
       PRUNED=$((PRUNED + 1))
     else
-      say "keep    $old (left the pack, but you modified it — remove by hand)"
+      say "keep    $old (left the pack, but you modified it; remove by hand)"
     fi
   done < "$MANIFEST"
 fi
