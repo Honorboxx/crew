@@ -1,24 +1,23 @@
 # Crew
 
 **Three specialist subagents and three skills for Claude Code: code review,
-debugging, planning, and the discipline around them. Distilled from a working
-production setup.**
+debugging, planning, and the discipline around them.**
 
 These are prompt files, not magic. They plug into Claude Code's native
 subagent (`.claude/agents/`) and skill (`.claude/skills/`) machinery and make
 it do disciplined work: reviews that hunt outside the diff, debugging that
 proves the cause before fixing, "done" that requires evidence. Each file is
-written to a bar of: concrete method, failure-mode table, definition of done.
-No filler.
+written to the same bar: concrete method, failure-mode table, definition of
+done. The recorded sessions below are what that produced on real code.
 
-## Install (60 seconds)
+## Install
 
 ```bash
 git clone https://github.com/Honorboxx/crew && cd crew
 sh install.sh
 ```
 
-That's it. The installer symlinks the pack into `~/.claude` (so `git pull`
+The installer symlinks the pack into `~/.claude` (so `git pull`
 updates it), tracks everything it installs in a manifest, and will not touch
 files it doesn't own. `sh install.sh --dry-run` shows the plan first;
 `--copy` detaches from the checkout; `--uninstall` removes exactly what it
@@ -176,11 +175,3 @@ so you can see precisely what changes before you pay.
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
----
-
-*Repo description, for the fork bar: "Specialist subagents and skills for
-Claude Code: rigorous code review, systematic debugging, planning, and
-verification discipline. Free tier of Crew."*
-*Topics: `claude-code` `claude` `subagents` `agents` `skills` `code-review`
-`debugging` `developer-tools`*
