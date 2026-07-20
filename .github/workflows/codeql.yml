@@ -1,0 +1,67 @@
+# CodeQL code scanning.
+#
+# Free here because this repository is public. It is deliberately NOT enabled on
+# the private repos, where the same analysis is billed against the 2,000 free
+# Actions minutes a month that the fulfillment poll runs on.
+#
+# WHAT THIS DOES AND DOES NOT COVER, stated plainly so nobody reads a green
+# badge as more than it is. Most of this pack is shell and markdown, and CodeQL
+# has no shell analysis: the guards in install.sh and the hooks are the parts
+# with real failure modes, and none of them are scanned here. Their coverage
+# comes from the cross-shell test suite, which is what has actually caught the
+# fail-open bugs in this codebase. What CodeQL adds is:
+#
+#   javascript-typescript  scripts/check-samples.js, the one JS file.
+#
+# That is a small surface, honestly. It is enabled anyway because it costs
+# nothing on a public repo, it runs on every pull request, and it grows in value
+# on its own as the pack does.
+#
+# The `actions` language is deliberately NOT in the matrix here, unlike the
+# engine repo. GitHub's own language detection for this repository returns
+# javascript/typescript only, because this repo has no workflow files for the
+# extractor to read; the sole exception would be this file scanning itself.
+# Add `actions` here the moment this pack gains a workflow worth analysing.
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly, off-peak, and never on the hour: GitHub documents the top of the
+    # hour as the worst scheduler contention.
+    - cron: "43 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze ${{ matrix.language }}
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript]
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@b7351df727350dca84cb9d725d57dcf5bc82ba26 # v3.37.1
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@b7351df727350dca84cb9d725d57dcf5bc82ba26 # v3.37.1
+        with:
+          category: /language:${{ matrix.language }}
