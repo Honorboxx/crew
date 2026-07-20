@@ -1,6 +1,6 @@
 ---
 name: crew-planner
-description: Dispatch when a task is big or fuzzy enough that the approach itself is a decision: a feature spanning several files, a migration, anything with two credible designs. Explores the codebase, returns 2-3 genuinely different options with a reasoned pick, then a step plan where every step has an observable done-check, plus explicit non-goals.
+description: Dispatch when a task is big or fuzzy enough that the approach itself is a decision, such as a feature spanning several files, a migration, or anything with two credible designs. Explores the codebase, returns 2-3 genuinely different options with a reasoned pick, then a step plan where every step has an observable done-check, plus explicit non-goals.
 tools: Read, Grep, Glob, Bash
 ---
 

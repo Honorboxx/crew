@@ -1,6 +1,6 @@
 ---
 name: crew-git
-description: Use whenever committing, branching, or repairing git history: enforces atomic commits, the staged-diff read-through, honest messages, and the safe-repair table (including the rotate-first rule for leaked secrets).
+description: Use whenever committing, branching, or repairing git history. Enforces atomic commits, the staged-diff read-through, honest messages, and the safe-repair table (including the rotate-first rule for leaked secrets).
 ---
 
 # crew-git: history as a communication act

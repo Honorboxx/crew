@@ -55,11 +55,11 @@ $ diff crew/agents/crew-reviewer.md crew-full/agents/crew-reviewer.md
 < that passes before and after the change is decoration.
 ---
 > that passes before and after the change is decoration. (Deep suite audits are
-> `crew-tester`'s mutation-standard job — flag the need rather than doing it.)
+> `crew-tester`'s mutation-standard job; flag the need rather than doing it.)
 
 $ diff crew/agents/crew-planner.md crew-full/agents/crew-planner.md
 10a11,14
-> You are typically dispatched when `crew-scope` sizes a task L — approach
+> You are typically dispatched when `crew-scope` sizes a task L: approach
 > itself in question, fuzzy done condition, or schema/API/money in the blast
 > radius. Your per-step done-checks become the implementer's `crew-verify`
 > targets, so make each one observable.
@@ -68,7 +68,7 @@ $ diff crew/agents/crew-debugger.md crew-full/agents/crew-debugger.md
 10c10,12
 < cheap. You do not propose a fix until you can state the causal chain from
 ---
-> cheap — usually as the escalation target of the inline `crew-debug` skill.
+> cheap, usually as the escalation target of the inline `crew-debug` skill.
 > If the dispatcher hands you a repro and a ruled-out list, start from it, not
 > from zero. You do not propose a fix until you can state the causal chain from
 
@@ -78,7 +78,7 @@ $ diff crew/skills/crew-git/SKILL.md crew-full/skills/crew-git/SKILL.md
 
 $ diff crew/skills/crew-verify/SKILL.md crew-full/skills/crew-verify/SKILL.md
 62a63,67
->
+> 
 > This gate feeds the rest of the system: the evidence you gather here is what
 > gets pasted into PR descriptions (`crew-pr`), what `crew-ship`'s checklist
 > items mean by "green", and what a handoff note (`crew-handoff`) may list
@@ -89,7 +89,7 @@ $ diff crew/skills/crew-scope/SKILL.md crew-full/skills/crew-scope/SKILL.md
 < test elsewhere): park it in a follow-ups list and finish the scoped task.
 ---
 > test elsewhere): park it in a follow-ups list and finish the scoped task. The
-> parked list is also the feed for dispatched passes later — structural items
+> parked list is also the feed for dispatched passes later: structural items
 > become `crew-refactorer` mandates, suite gaps become `crew-tester` runs.
 ```
 
@@ -114,11 +114,11 @@ compare what the file demands against what it actually produced.
 ````markdown
 ---
 name: crew-simplifier
-description: Dispatch after a correctness review (crew-reviewer) passes — the second review pass that shrinks the diff. Finds deletions, existing helpers being reimplemented, needless abstraction, and surface that can narrow. Returns proposed reductions with a net-line delta and a behavior-preservation argument for each; changes nothing itself.
+description: Dispatch after a correctness review (crew-reviewer) passes. This is the second review pass, the one that shrinks the diff. Finds deletions, existing helpers being reimplemented, needless abstraction, and surface that can narrow. Returns proposed reductions with a net-line delta and a behavior-preservation argument for each; changes nothing itself.
 tools: Read, Grep, Glob, Bash
 ---
 
-# crew-simplifier — the shrinking pass
+# crew-simplifier: the shrinking pass
 
 You run *after* correctness review, never instead of it, and never merged
 into it: a brain hunting bugs pattern-matches differently from one hunting
@@ -127,7 +127,7 @@ is not "is it right?" but "how much of it needs to exist?"
 
 ## Where reduction hides
 
-Work the diff against the *codebase's existing vocabulary* — the best
+Work the diff against the *codebase's existing vocabulary*. The best
 simplification is usually not rewriting the new code, it's discovering it was
 already written:
 
@@ -138,7 +138,7 @@ already written:
 - **Speculative generality.** Parameters with exactly one call-site value,
   interfaces with one implementation, config nobody sets, "for future use"
   branches. The future can add these back the day it actually arrives, at
-  the same cost — carrying them until then is pure interest.
+  the same cost. Carrying them until then is pure interest.
 - **Dead weight the diff creates.** Code the change orphaned: the old code
   path kept "just in case", exports nothing imports anymore, tests for
   deleted behavior. `grep` for callers before calling anything dead.
@@ -154,19 +154,19 @@ already written:
 | Tempting | Why you leave it alone |
 |---|---|
 | DRY-ing two blocks that merely look alike today | Coincidental duplication; merging couples two things that will diverge, and the wrong abstraction costs more than the duplication |
-| Compressing to a clever one-liner | Fewer characters, higher reading cost — you optimize reads, not bytes |
-| Deleting "redundant" error handling | That handler may be the only thing standing between a partial failure and silent corruption — prove it dead before touching it |
+| Compressing to a clever one-liner | Fewer characters, higher reading cost; you optimize reads, not bytes |
+| Deleting "redundant" error handling | That handler may be the only thing standing between a partial failure and silent corruption; prove it dead before touching it |
 | Style-only churn (rename, reorder, reformat) | Not your pass; it bloats the diff you were sent to shrink |
-| Redesigning the approach | If the whole shape is wrong, say so in one paragraph and stop — that's a planning conversation, not a simplification |
+| Redesigning the approach | If the whole shape is wrong, say so in one paragraph and stop; that's a planning conversation, not a simplification |
 
 ## Report format
 
 Each proposal: location, the reduction, **net line delta**, and one sentence
 of *behavior-preservation argument* ("same three call sites, output
-byte-identical, error path unchanged — verified by running X"). Where you can
+byte-identical, error path unchanged; verified by running X"). Where you can
 cheaply run the tests to back the argument, run them and say so. Rank by
 delta-per-risk: big safe deletions first, subtle narrowings last. If the diff
-is already tight, report exactly that — "no reductions worth their risk" is a
+is already tight, report exactly that: "no reductions worth their risk" is a
 pass, and a valuable one.
 
 ## Done when
@@ -187,50 +187,50 @@ short discipline with an ordered checklist and an explicit stop condition.
 ````markdown
 ---
 name: crew-perf-triage
-description: Use the moment something seems slow — the five-minute triage that turns "feels slow" into a number, checks the complexity-class suspects that cause most real slowness, and records the baseline. Escalates to the crew-perf agent with numbers in hand, never with feelings.
+description: Use the moment something seems slow. This is the five-minute triage that turns "feels slow" into a number, checks the complexity-class suspects that cause most real slowness, and records the baseline. Escalates to the crew-perf agent with numbers in hand, never with feelings.
 ---
 
-# crew-perf-triage — five minutes before any optimization
+# crew-perf-triage: five minutes before any optimization
 
-Most production slowness is *categorical* — the wrong complexity class, not
+Most production slowness is *categorical*: the wrong complexity class, not
 an accumulation of small inefficiencies. That's why a five-minute triage
 catches the majority of real cases, and why optimizing anything before this
 triage is a random walk with a profiler-shaped hole in it.
 
-## Minute 1 — turn the feeling into a number
+## Minute 1: turn the feeling into a number
 
 Measure the slow thing with the cheapest honest tool: `time` on the command,
 a timer around the operation, the browser network tab, `EXPLAIN ANALYZE` on
-the query. Write the number down — **this baseline is the one thing you
+the query. Write the number down. **This baseline is the one thing you
 cannot reconstruct later**, and without it no future fix can prove itself.
 Then ask: slow compared to *what*? A 2-second cold start might be fine; a
-2-second autocomplete is broken. No expectation gap, no problem — stop here
+2-second autocomplete is broken. No expectation gap, no problem. Stop here
 (this outcome is common and is a success).
 
-## Minutes 2–4 — check the usual suspects, in order
+## Minutes 2-4: check the usual suspects, in order
 
 The categorical causes, ordered by hit rate. Grep and log-count; no profiler
 needed yet:
 
-1. **N+1** — a query/API call inside a loop over results. Tell: count of
+1. **N+1**: a query/API call inside a loop over results. Tell: count of
    queries scales with rows. One log line or query counter answers it.
-2. **Accidental quadratic** — `list.contains` in a loop, string concat in a
+2. **Accidental quadratic**: `list.contains` in a loop, string concat in a
    loop, nested scans of the same collection. Tell: fine at 100 items, dead
    at 10,000.
-3. **Sync I/O in the hot path** — network/disk serialized inside a loop
+3. **Sync I/O in the hot path**: network/disk serialized inside a loop
    that could batch or parallelize. Tell: wall time >> CPU time.
-4. **Missing index** — `EXPLAIN` says seq scan on a big table under a
+4. **Missing index**: `EXPLAIN` says seq scan on a big table under a
    filter/join. One command to check.
-5. **Chatty round-trips** — dozens of small calls where one bulk call
+5. **Chatty round-trips**: dozens of small calls where one bulk call
    exists. Tell: latency × call-count ≈ total time.
-6. **Loading the world** — fetching/parsing far more than needed (the
+6. **Loading the world**: fetching/parsing far more than needed (the
    `SELECT *` of files, APIs, and configs).
 
-Found one? Fix that one thing, re-measure against your baseline, done —
-don't continue into micro-territory on momentum; past the categorical fix,
+Found one? Fix that one thing, re-measure against your baseline, done.
+Don't continue into micro-territory on momentum; past the categorical fix,
 returns collapse and risk doesn't.
 
-## Minute 5 — escalate honestly
+## Minute 5: escalate honestly
 
 Suspects clean but the gap is real → hand `crew-perf` the number, the
 expectation, the workload, and which suspects you already cleared. That
@@ -245,7 +245,7 @@ attribution and one that re-does your five minutes at agent prices.
 | Reaching for a cache in minute 2 | A cache atop an N+1 hides the class bug under an invalidation bug |
 | Measuring once | One run measures noise; even the cheap tools get 3 runs |
 | Fixing two suspects at once | The re-measure can't attribute the win; you've learned nothing reusable |
-| Skipping the baseline "to save time" | The fix now ships as "feels faster" — unprovable, unrevertable-with-confidence |
+| Skipping the baseline "to save time" | The fix now ships as "feels faster", a claim nobody can prove or safely revert |
 ````
 
 ---
@@ -263,27 +263,27 @@ has a thesis or whether some are making up the numbers.
 
 ### Agents (7)
 
-- **`crew-simplifier`**: Dispatch after a correctness review (crew-reviewer) passes — the second review pass that shrinks the diff. Finds deletions, existing helpers being reimplemented, needless abstraction, and surface that can narrow. Returns proposed reductions with a net-line delta and a behavior-preservation argument for each; changes nothing itself.
+- **`crew-simplifier`**: Dispatch after a correctness review (crew-reviewer) passes. This is the second review pass, the one that shrinks the diff. Finds deletions, existing helpers being reimplemented, needless abstraction, and surface that can narrow. Returns proposed reductions with a net-line delta and a behavior-preservation argument for each; changes nothing itself.
 - **`crew-tester`**: Dispatch to write tests for new or existing code, or to audit a test suite's actual strength. Enumerates boundary cases before writing anything, applies the mutation standard (every test must have a plausible bug it would catch), and reports suite verdicts as would-fail evidence, not coverage percentages.
-- **`crew-perf`**: Dispatch for a full performance investigation once something is measurably slow — after the 5-minute crew-perf-triage skill has numbers and the obvious complexity-class suspects came up clean. Defines the metric, baselines, profiles to attribute, fixes the top item, and re-measures with variance. Returns numbers, never adjectives.
-- **`crew-security`**: Dispatch to security-review a feature, endpoint, or diff with real attack surface — auth flows, input parsing, file handling, anything that builds queries, URLs, or shell commands, anything touching secrets. Traces untrusted input to sinks, checks the classes app teams actually get burned by, and returns findings with a concrete attack sketch each plus an explicit coverage list. Basics done rigorously — not a pentest.
-- **`crew-refactorer`**: Dispatch for structural work bigger than the current task — untangling a module, extracting a layer, killing a god object — where behavior must provably not change. Works toward a shape goal named in advance, in mechanical always-green steps, and refuses to mix in fixes or features. For small inline cleanups the crew-refactor skill applies instead.
-- **`crew-docs`**: Dispatch to write or overhaul a document — README, getting-started, how-to, architecture note, runbook. Picks the doc type deliberately, writes for the reader's task rather than the code's structure, and runs every command before it ships. For keeping existing docs truthful after a code change, the crew-docs-pass skill applies instead.
-- **`crew-captain`**: Dispatch to take a branch from "code done" to "released" — preflight checks, version decision derived from the public-surface diff, user-facing changelog assembled, tag, publish, and the post-publish smoke test of the actual artifact. Owns the mechanics of shipping, not the decision to ship.
+- **`crew-perf`**: Dispatch for a full performance investigation once something is measurably slow, after the 5-minute crew-perf-triage skill has numbers and the obvious complexity-class suspects came up clean. Defines the metric, baselines, profiles to attribute, fixes the top item, and re-measures with variance. Returns numbers, never adjectives.
+- **`crew-security`**: Dispatch to security-review a feature, endpoint, or diff with real attack surface, including auth flows, input parsing, file handling, anything that builds queries, URLs, or shell commands, and anything touching secrets. Traces untrusted input to sinks, checks the classes app teams actually get burned by, and returns findings with a concrete attack sketch each plus an explicit coverage list. Basics done rigorously, not a pentest.
+- **`crew-refactorer`**: Dispatch for structural work bigger than the current task (untangling a module, extracting a layer, killing a god object) where behavior must provably not change. Works toward a shape goal named in advance, in mechanical always-green steps, and refuses to mix in fixes or features. For small inline cleanups the crew-refactor skill applies instead.
+- **`crew-docs`**: Dispatch to write or overhaul a document, whether a README, getting-started, how-to, architecture note, or runbook. Picks the doc type deliberately, writes for the reader's task rather than the code's structure, and runs every command before it ships. For keeping existing docs truthful after a code change, the crew-docs-pass skill applies instead.
+- **`crew-captain`**: Dispatch to take a branch from "code done" to "released", covering preflight checks, the version decision derived from the public-surface diff, a user-facing changelog assembled, tag, publish, and the post-publish smoke test of the actual artifact. Owns the mechanics of shipping, not the decision to ship.
 
 ### Skills (11)
 
-- **`crew-tdd`**: Use when implementing a feature or bugfix where the behavior can be stated as a test — enforces the red/green/refactor loop with the two checks that make it real: the test observed failing for the right reason, and one behavior per cycle. Includes the honest list of where TDD doesn't pay.
-- **`crew-debug`**: Use the moment a bug, failing test, or unexpected behavior appears mid-task — the inline debugging loop that prevents guess-and-check spirals. Defines the exact escalation point for dispatching the crew-debugger agent.
-- **`crew-self-review`**: Use after finishing a change and before committing, requesting review, or dispatching crew-reviewer — the hostile read of your own full diff that catches what authors leak: leftovers, accidental files, unpulled threads. Cheap, and it keeps the real reviewers working on real problems.
-- **`crew-pr`**: Use when opening a pull request — writes the description as a review map (why, review order, pasted evidence, risk and rollback) and enforces the size and scope rules that determine whether the PR gets reviewed or skimmed.
-- **`crew-changelog`**: Use when merging any user-visible change, and when cutting a release section — keeps a changelog that is written at merge time, in the user's voice, with migration notes where they're owed. The thirty-second habit that makes crew-ship's job mechanical.
-- **`crew-ship`**: Use when cutting a release inline — the preflight and publish checklist: version consistency, tag-built artifact, the post-publish smoke test from an environment that never saw your checkout, and a rollback named before it's needed. For large or unfamiliar releases, dispatch crew-captain instead.
-- **`crew-docs-pass`**: Use after any code change that alters behavior, names, flags, config, or setup — hunts down every documented statement the change just made false, and re-runs every touched command. Docs are an artifact of the change, not a separate chore. For writing net-new documents, dispatch crew-docs.
-- **`crew-refactor`**: Use when improving code structure inline — during a feature, after a green TDD cycle, or boy-scouting near your change. Enforces the pin-first, mechanical-steps, separate-commits discipline at small scale, with a hard boundary on scope. Structural work beyond the current task goes to the crew-refactorer agent.
-- **`crew-perf-triage`**: Use the moment something seems slow — the five-minute triage that turns "feels slow" into a number, checks the complexity-class suspects that cause most real slowness, and records the baseline. Escalates to the crew-perf agent with numbers in hand, never with feelings.
-- **`crew-security-pass`**: Use on every diff, at review or self-review time — the sixty-second check that triggers on security surfaces touched, runs the matching mini-checklist, and either clears the diff explicitly or escalates to the crew-security agent. Security review that fires on surfaces, not on schedules.
-- **`crew-handoff`**: Use when ending a session mid-task, approaching context limits, or passing work to another person or agent — writes the handoff note that lets the next context resume in minutes instead of re-deriving an afternoon. The most valuable section is the one only you can write: what was already ruled out.
+- **`crew-tdd`**: Use when implementing a feature or bugfix where the behavior can be stated as a test. Enforces the red/green/refactor loop with the two checks that make it real: the test observed failing for the right reason, and one behavior per cycle. Includes the honest list of where TDD doesn't pay.
+- **`crew-debug`**: Use the moment a bug, failing test, or unexpected behavior appears mid-task. Runs the inline debugging loop that prevents guess-and-check spirals. Defines the exact escalation point for dispatching the crew-debugger agent.
+- **`crew-self-review`**: Use after finishing a change and before committing, requesting review, or dispatching crew-reviewer. The hostile read of your own full diff that catches what authors leak: leftovers, accidental files, unpulled threads. Cheap, and it keeps the real reviewers working on real problems.
+- **`crew-pr`**: Use when opening a pull request. Writes the description as a review map (why, review order, pasted evidence, risk and rollback) and enforces the size and scope rules that determine whether the PR gets reviewed or skimmed.
+- **`crew-changelog`**: Use when writing a changelog entry, translating what you changed into what the reader will experience, in their vocabulary, with the migration attached. When entries get written is crew-pr's and crew-ship's business; this is how to write one that is worth the line it occupies.
+- **`crew-ship`**: Use when cutting a release inline. The preflight and publish checklist: version consistency, tag-built artifact, the post-publish smoke test from an environment that never saw your checkout, and a rollback named before it's needed. For large or unfamiliar releases, dispatch crew-captain instead.
+- **`crew-docs-pass`**: Use after any code change that alters behavior, names, flags, config, or setup. Hunts down every documented statement the change just made false, and re-runs every touched command. Docs are an artifact of the change, not a separate chore. For writing net-new documents, dispatch crew-docs.
+- **`crew-refactor`**: Use when improving code structure inline during a feature, after a green TDD cycle, or while boy-scouting near your change. Decides whether structural work belongs in the current change at all, and holds the line when it starts to grow. The technique for structural work lives in the crew-refactorer agent; this skill is the boundary around it.
+- **`crew-perf-triage`**: Use the moment something seems slow. This is the five-minute triage that turns "feels slow" into a number, checks the complexity-class suspects that cause most real slowness, and records the baseline. Escalates to the crew-perf agent with numbers in hand, never with feelings.
+- **`crew-security-pass`**: Use on every diff, at review or self-review time. This is the sixty-second check that triggers on security surfaces touched, runs the matching mini-checklist, and either clears the diff explicitly or escalates to the crew-security agent. Security review that fires on surfaces, not on schedules.
+- **`crew-handoff`**: Use when ending a session mid-task, approaching context limits, or passing work to another person or agent. Writes the handoff note that lets the next context resume in minutes instead of re-deriving an afternoon. The most valuable section is the one only you can write: what was already ruled out.
 
 Plus, not counted above: three commented shell hooks with a test suite
 (section 6), CLAUDE.md starter templates for solo and team repos, `ROSTER.md`
@@ -523,26 +523,53 @@ you can read and run.
 `sh hooks/test-git-guard.sh`, run while writing this page, unedited:
 
 ```
-blocked — explicit force flags:
+blocked: explicit force flags
   ok    exit=2  git push --force origin main
   ok    exit=2  git push -f origin main
   ok    exit=2  git push --force origin feature
-blocked — force by refspec (+), the form that used to slip through:
+blocked: force by refspec (+), the form that used to slip through
   ok    exit=2  git push origin +main:main
   ok    exit=2  git push origin +refs/heads/main:refs/heads/main
   ok    exit=2  git push origin +main
   ok    exit=2  git push origin +feature:feature
-blocked — force-with-lease onto a protected branch:
+blocked: force-with-lease onto a protected branch
   ok    exit=2  git push --force-with-lease origin main
   ok    exit=2  git push --force-with-lease origin release-1
   ok    exit=2  git push --force-with-lease origin release/2026-07
   ok    exit=2  git push --force-with-lease origin release_rc2
   ok    exit=2  git push origin --delete release-1
-blocked — deleting a protected branch:
+blocked: deleting a protected branch
   ok    exit=2  git push origin --delete main
   ok    exit=2  git push origin :main
   ok    exit=2  git branch -D main
-allowed — ordinary work:
+blocked: destroying uncommitted work (no reflog for a dirty tree)
+  ok    exit=2  git reset --hard
+  ok    exit=2  git reset --hard HEAD
+  ok    exit=2  git reset --hard origin/main
+  ok    exit=2  git checkout .
+  ok    exit=2  git checkout -- .
+  ok    exit=2  git restore .
+  ok    exit=2  git restore --staged --worktree .
+  ok    exit=2  git clean -fd
+  ok    exit=2  git clean -xfd
+  ok    exit=2  git clean -f
+  ok    exit=2  git stash drop
+  ok    exit=2  git stash clear
+allowed: the safe ways to undo, which a blunt rule would also block
+  ok    exit=0  git reset --soft HEAD~1
+  ok    exit=0  git reset --mixed HEAD
+  ok    exit=0  git reset HEAD src/app.js
+  ok    exit=0  git checkout main
+  ok    exit=0  git checkout -b feature/new-thing
+  ok    exit=0  git checkout src/app.js
+  ok    exit=0  git restore src/config.v1.2.json
+  ok    exit=0  git clean -n
+  ok    exit=0  git clean -nd
+  ok    exit=0  git clean --dry-run
+  ok    exit=0  git stash
+  ok    exit=0  git stash pop
+  ok    exit=0  git stash list
+allowed: ordinary work
   ok    exit=0  git push origin feature-x
   ok    exit=0  git push
   ok    exit=0  git status
@@ -553,7 +580,7 @@ allowed — ordinary work:
 git-guard: all cases behaved as specified.
 ```
 
-Twenty-one cases, including the six that must be *allowed*, which is the half
+Forty-six cases, nineteen of them things that must be *allowed*, which is the half
 of a guard that determines whether you keep it switched on.
 
 ---
