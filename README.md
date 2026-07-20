@@ -169,8 +169,16 @@ first*; history rewriting is only tidying.
 ## Free vs full
 
 This repo is the free tier, and it's genuinely useful alone. The full pack is
-the whole system — the same bar, ten agents and fourteen skills that
-cross-reference each other, plus hooks and starter templates.
+the whole system: ten agents and fourteen skills that cross-reference each
+other, plus hooks and starter templates.
+
+**Before deciding, read [SAMPLES.md](SAMPLES.md).** A paid prompt pack is the
+one kind of product you cannot evaluate before paying, so that page opens it:
+the complete text of one paid agent and one paid skill, the `description` of
+all eighteen paid-only files, the exact `diff` between the six free files and
+their paid counterparts, a recorded run of a free and a paid agent on the same
+public commit (including the live bug it found), and our own account of the
+three weakest files in the pack.
 
 | | Crew (this repo) | [Crew Full — $19](https://honorboxx.github.io/honorbox/crew.html) |
 |---|---|---|
@@ -184,7 +192,9 @@ cross-reference each other, plus hooks and starter templates.
 | License | MIT | per-developer commercial |
 
 Buying replaces the six free files with superset versions (added
-cross-references into the full system) — the installer handles it cleanly.
+cross-references into the full system) — the installer handles it cleanly, and
+[the exact diff is published](SAMPLES.md#1-what-buying-changes-about-the-files-you-already-have)
+so you can see precisely what changes before you pay.
 
 ## Honest limits
 
