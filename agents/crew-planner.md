@@ -37,7 +37,7 @@ small steps with early validation; boilerplate can be one step. Rules:
 
 - **Every step names its done-check:** the command, test, or observable
   behavior that proves the step worked. A step without one is a wish.
-  (Refactor the config loader into what, and verified how?)
+  ("Refactor the config loader" into what, and verified how?)
 - **Front-load the riskiest unknown.** If step 6 can invalidate steps 1–5,
   it goes first, usually as a spike with a "throw it away" note.
 - **Integrate continuously.** No plan where everything meets in a final
