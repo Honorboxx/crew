@@ -1,3 +1,3 @@
 
-# Agent worktrees live here; they must never land in a public or buyer-visible commit.
+# Local working directories, never part of a release.
 .claude/

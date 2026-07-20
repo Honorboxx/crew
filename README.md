@@ -151,7 +151,7 @@ three weakest files in the pack.
 |---|---|---|
 | Agents | 3: reviewer, debugger, planner | 10: + simplifier (second review pass), tester, perf, security, refactorer, docs, release captain |
 | Skills | 3: verify, scope, git | 14: + TDD, debug loop, self-review, PR authoring, changelog, release, docs pass, refactor, perf triage, security pass, handoff |
-| Hook examples | none | 3, safe and commented (git guard, secret shield, format-on-edit) |
+| Hook examples | none | 6, safe and commented (git, shell, exfil, scope and secret guards, plus format-on-edit), with their test suites |
 | CLAUDE.md starter templates | none | solo + team variants |
 | Design doc | none | ROSTER.md: every agent/skill mapped to a job and a boundary |
 | Installer | this one | same one, covering the full pack |

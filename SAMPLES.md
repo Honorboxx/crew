@@ -30,7 +30,9 @@ good files and sixteen pieces of filler, eighteen consecutive descriptions
 would make that obvious in about ninety seconds.
 
 Everything quoted from the product below is verbatim, including its
-punctuation.
+punctuation. That is checked rather than promised: `scripts/check-samples.js`
+re-derives every description, every diff and every quotation on this page from
+the files they come from, and fails if any of them has drifted.
 
 ---
 
@@ -80,8 +82,8 @@ $ diff crew/skills/crew-verify/SKILL.md crew-full/skills/crew-verify/SKILL.md
 62a63,67
 > 
 > This gate feeds the rest of the system: the evidence you gather here is what
-> gets pasted into PR descriptions (`crew-pr`), what `crew-ship`'s checklist
-> items mean by "green", and what a handoff note (`crew-handoff`) may list
+> gets pasted into PR descriptions (`crew-pr`), what `crew-captain`'s preflight
+> means by "green", and what a handoff note (`crew-handoff`) may list
 > under "done". None of those accept the claim without the observation.
 
 $ diff crew/skills/crew-scope/SKILL.md crew-full/skills/crew-scope/SKILL.md
@@ -269,7 +271,7 @@ has a thesis or whether some are making up the numbers.
 - **`crew-security`**: Dispatch to security-review a feature, endpoint, or diff with real attack surface, including auth flows, input parsing, file handling, anything that builds queries, URLs, or shell commands, and anything touching secrets. Traces untrusted input to sinks, checks the classes app teams actually get burned by, and returns findings with a concrete attack sketch each plus an explicit coverage list. Basics done rigorously, not a pentest.
 - **`crew-refactorer`**: Dispatch for structural work bigger than the current task (untangling a module, extracting a layer, killing a god object) where behavior must provably not change. Works toward a shape goal named in advance, in mechanical always-green steps, and refuses to mix in fixes or features. For small inline cleanups the crew-refactor skill applies instead.
 - **`crew-docs`**: Dispatch to write or overhaul a document, whether a README, getting-started, how-to, architecture note, or runbook. Picks the doc type deliberately, writes for the reader's task rather than the code's structure, and runs every command before it ships. For keeping existing docs truthful after a code change, the crew-docs-pass skill applies instead.
-- **`crew-captain`**: Dispatch to take a branch from "code done" to "released", covering preflight checks, the version decision derived from the public-surface diff, a user-facing changelog assembled, tag, publish, and the post-publish smoke test of the actual artifact. Owns the mechanics of shipping, not the decision to ship.
+- **`crew-captain`**: Dispatch to execute a release once the decision is made: preflight against the exact SHA, tag, build from the tag checkout, publish, push the tag, and smoke-test the published artifact from an environment that never saw your checkout. Owns the mechanics of shipping, not the decision to ship: the version, the one-way list and the rollback arrive with the mandate (crew-ship) and are verified here, never invented.
 
 ### Skills (11)
 
@@ -278,14 +280,14 @@ has a thesis or whether some are making up the numbers.
 - **`crew-self-review`**: Use after finishing a change and before committing, requesting review, or dispatching crew-reviewer. The hostile read of your own full diff that catches what authors leak: leftovers, accidental files, unpulled threads. Cheap, and it keeps the real reviewers working on real problems.
 - **`crew-pr`**: Use when opening a pull request. Writes the description as a review map (why, review order, pasted evidence, risk and rollback) and enforces the size and scope rules that determine whether the PR gets reviewed or skimmed.
 - **`crew-changelog`**: Use when writing a changelog entry, translating what you changed into what the reader will experience, in their vocabulary, with the migration attached. When entries get written is crew-pr's and crew-ship's business; this is how to write one that is worth the line it occupies.
-- **`crew-ship`**: Use when cutting a release inline. The preflight and publish checklist: version consistency, tag-built artifact, the post-publish smoke test from an environment that never saw your checkout, and a rollback named before it's needed. For large or unfamiliar releases, dispatch crew-captain instead.
+- **`crew-ship`**: Use before cutting any release. Decides what the release claims (the version, derived from the public-surface diff), inventories what in it cannot be taken back, and names the rollback while it is still cheap. The mechanics of tagging, building and publishing belong to the crew-captain agent; this skill is the decision in front of them.
 - **`crew-docs-pass`**: Use after any code change that alters behavior, names, flags, config, or setup. Hunts down every documented statement the change just made false, and re-runs every touched command. Docs are an artifact of the change, not a separate chore. For writing net-new documents, dispatch crew-docs.
 - **`crew-refactor`**: Use when improving code structure inline during a feature, after a green TDD cycle, or while boy-scouting near your change. Decides whether structural work belongs in the current change at all, and holds the line when it starts to grow. The technique for structural work lives in the crew-refactorer agent; this skill is the boundary around it.
 - **`crew-perf-triage`**: Use the moment something seems slow. This is the five-minute triage that turns "feels slow" into a number, checks the complexity-class suspects that cause most real slowness, and records the baseline. Escalates to the crew-perf agent with numbers in hand, never with feelings.
 - **`crew-security-pass`**: Use on every diff, at review or self-review time. This is the sixty-second check that triggers on security surfaces touched, runs the matching mini-checklist, and either clears the diff explicitly or escalates to the crew-security agent. Security review that fires on surfaces, not on schedules.
 - **`crew-handoff`**: Use when ending a session mid-task, approaching context limits, or passing work to another person or agent. Writes the handoff note that lets the next context resume in minutes instead of re-deriving an afternoon. The most valuable section is the one only you can write: what was already ruled out.
 
-Plus, not counted above: three commented shell hooks with a test suite
+Plus, not counted above: six commented shell hooks with their test suites
 (section 6), CLAUDE.md starter templates for solo and team repos, `ROSTER.md`
 (the design document that assigns every file a job and an explicit *not* its
 job), and `UPGRADING.md`.
@@ -499,7 +501,7 @@ Findings from the paid simplifier: four reductions totalling −13 lines and two
 names removed from module surface, each with a behavior-preservation argument,
 plus seven candidates considered and rejected with reasons.
 
-They overlapped on exactly one observation out of sixteen, and disposed of it
+They overlapped on exactly one observation out of fifteen, and disposed of it
 differently: both noticed that `--help` is listed as a known flag but does
 nothing. The reviewer filed it as a defect and said implement it. The
 simplifier proposed deleting it from the list and explicitly refused to
@@ -515,8 +517,11 @@ it is the reason the boundary lines exist in the diff in
 
 ## 6. The hooks and their test
 
-The paid pack ships three hooks as commented, auditable POSIX shell: a git
-guard, a secret shield, and post-edit formatting. Shell that intercepts your
+The paid pack ships six hooks as commented, auditable POSIX shell. Five are
+guards that block: a git guard, a shell guard, an exfil guard, a scope guard,
+and a secret shield. The sixth, post-edit formatting, is a convenience that
+fails open. Guards fail closed, conveniences fail open, and the difference is
+written down in `hooks/README.md`. Shell that intercepts your
 git commands should not be taken on trust, so the git guard ships with a test
 you can read and run.
 
@@ -590,24 +595,32 @@ of a guard that determines whether you keep it switched on.
 You will find these after buying, so here they are first. This is our own
 assessment, and it is the section we would most like to delete.
 
-**`crew-refactor` and `crew-refactorer` overlap more than they should.** The
-split is real in principle (an inline discipline versus a dispatched agent for
-structural work), and each has content the other does not: the skill owns the
-`git bisect` argument and the boy-scout boundary, the agent owns
-characterization tests and golden-masters. But roughly half the skill restates
-the agent in different words. The rule of three, the extract/inline/move/rename
-list, the preference for tool-assisted renames, and the unpinned-code argument
-all appear twice, down to the thesis line: the agent says *"Most refactors that
-go wrong were secretly redesigns that never admitted it"* and the skill says
-*"Most refactors that go wrong were redesigns in denial."* If you buy the pack
-and feel you paid for one of these twice, that is a fair reading. `ROSTER.md`
-says overlap is a bug and asks you to file an issue; this one we found
-ourselves and have not fixed yet.
+**`crew-refactor` and `crew-refactorer` sit closer together than we would
+like.** The split is real in principle (an inline discipline versus a dispatched
+agent for structural work), and each has content the other does not: the skill
+owns the `git bisect` argument and the boy-scout boundary, the agent owns
+characterization tests and golden-masters. The skill also defers the
+transformations to the agent by name rather than restating them, which is the
+seam working.
+
+What genuinely repeats is the thesis, almost word for word. The agent says
+*"Most refactors that go wrong were secretly redesigns that never admitted
+it"*; the skill says *"Most refactors that go wrong were redesigns that never
+admitted it"*. One word apart, in the two files a buyer is most likely to read
+back to back.
+
+The deeper problem is not duplicated sentences, it is that deciding which of
+the two applies takes a moment's thought every time, and a roster should not
+make you do that. If you buy the pack and feel the boundary is finer than it
+needs to be, that is a fair reading. `ROSTER.md` says overlap is a bug and asks
+you to file an issue; this one we found ourselves and have not fixed yet.
 
 **`crew-changelog` and `crew-docs` lean on public standards more than the rest
 of the pack does.** `crew-changelog` is built on Keep a Changelog's vocabulary
-and says so; if you have read that page, the file adds about one idea
-(reconstructed release notes should be labelled as reconstructed).
+and says so; if you have read that page, what the file adds is mostly one idea,
+the reader test: an entry earns its line only if a user can tell whether it
+affects them and what to do about it, which is what forces the rewrite out of
+implementation vocabulary.
 `crew-docs`'s centerpiece is the four-type documentation taxonomy of
 tutorial / how-to / reference / explanation, which is Divio's widely published
 system (Daniele Procida's Diátaxis). The file shipped without crediting it.
