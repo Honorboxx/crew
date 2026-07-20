@@ -1,12 +1,12 @@
 # Crew
 
-**Three specialist subagents and three skills for Claude Code — code review,
+**Three specialist subagents and three skills for Claude Code: code review,
 debugging, planning, and the discipline around them. Distilled from a working
 production setup.**
 
-These are prompt files, not magic: they plug into Claude Code's native
+These are prompt files, not magic. They plug into Claude Code's native
 subagent (`.claude/agents/`) and skill (`.claude/skills/`) machinery and make
-it do disciplined work — reviews that hunt outside the diff, debugging that
+it do disciplined work: reviews that hunt outside the diff, debugging that
 proves the cause before fixing, "done" that requires evidence. Each file is
 written to a bar of: concrete method, failure-mode table, definition of done.
 No filler.
@@ -18,7 +18,7 @@ git clone https://github.com/Honorboxx/crew && cd crew
 sh install.sh
 ```
 
-That's it — the installer symlinks the pack into `~/.claude` (so `git pull`
+That's it. The installer symlinks the pack into `~/.claude` (so `git pull`
 updates it), tracks everything it installs in a manifest, and will not touch
 files it doesn't own. `sh install.sh --dry-run` shows the plan first;
 `--copy` detaches from the checkout; `--uninstall` removes exactly what it
@@ -31,14 +31,14 @@ Everything is `crew-`prefixed so it never collides with your other packs.
 
 ### Agents (dispatched with a fresh context, report back)
 
-**`crew-reviewer` — correctness pass.** Reads your diff three times: intent,
-adversarial, and *outside the diff* — greps callers of everything you changed,
+**`crew-reviewer`: correctness pass.** Reads your diff three times: intent,
+adversarial, and *outside the diff*. Greps callers of everything you changed,
 because most review-detectable bugs are in unchanged code whose assumptions
 just broke. Findings ranked P0/P1/P2 with a concrete failing scenario each,
 plus an explicit "checked and clean" list. Won't manufacture nits.
 
 > *Recorded session (real, verbatim-condensed): crew-reviewer on a shipped
-> commit of the store this pack funds — a markdown image/gallery feature the
+> commit of the store this pack funds, a markdown image/gallery feature the
 > author had marked "(tested)". It found two P1s and a P2 in production code;
 > all three were fixed the same hour.*
 > ```
@@ -65,14 +65,14 @@ plus an explicit "checked and clean" list. Won't manufacture nits.
 > idempotent; 13/13 existing tests meaningful except the one above.
 > ```
 
-**`crew-debugger` — root cause with receipts.** Reproduce → shrink → ranked
+**`crew-debugger`: root cause with receipts.** Reproduce → shrink → ranked
 hypotheses → experiments that *eliminate* rather than confirm → fix → prove
 (repro fails before, passes after, both outputs shown) → sweep for sibling
 bugs. Keeps a hypothesis log so long sessions never re-test eliminated ideas.
 Refuses to ship a fix without a causal chain.
 
 > *Recorded session (real, verbatim-condensed): crew-debugger on a real
-> production incident — a fulfillment failure that got an order permanently
+> production incident, a fulfillment failure that got an order permanently
 > stuck. No live APIs: it ran the real engine as a child process with only the
 > network faked, replaying the verbatim production error.*
 > ```
@@ -98,28 +98,28 @@ Refuses to ship a fix without a causal chain.
 >   transient 5xx never retries. Named for a deliberate decision.
 > ```
 
-**`crew-planner` — options, then a plan.** For tasks where the approach itself
+**`crew-planner`: options, then a plan.** For tasks where the approach itself
 is a decision. Recon in the codebase first, 2–3 genuinely different options
-with the rejected one and why, then steps sized by risk — every step with an
-observable done-check — and the section that matters most: explicit non-goals.
+with the rejected one and why, then steps sized by risk (every step with an
+observable done-check), and the section that matters most: explicit non-goals.
 
 ### Skills (disciplines you invoke inline)
 
-**`crew-verify` — evidence before claims.** The gate between finishing work
+**`crew-verify`: evidence before claims.** The gate between finishing work
 and describing work. Turns each claim ("fixed", "passing", "works") into the
-cheapest observation that would prove it, made *this session* — and includes
+cheapest observation that would prove it, made *this session*, and includes
 the trick most setups miss: verify the verifier (green that can't go red is
 not evidence). Anything unobserved ships labeled "changed, not verified".
 
-**`crew-scope` — size first, then plan that much.** S/M/L sizing by counting
+**`crew-scope`: size first, then plan that much.** S/M/L sizing by counting
 plausible designs, a 5-line mini-plan for M tasks (every line objection-bait),
 dispatch the planner for L. Kills both failure modes: coding an L blind, and
 planning theater on an S. Plus the mid-task rule for "while I'm here" creep:
 park it, don't chase it.
 
-**`crew-git` — history as a communication act.** Atomic commits tested by
+**`crew-git`: history as a communication act.** Atomic commits tested by
 "can this revert alone", the staged-diff read-through (the medium switch that
-catches debug prints), why-not-what messages, and a safe-repair table —
+catches debug prints), why-not-what messages, and a safe-repair table,
 including the rule that matters when it matters: a leaked secret is *rotated
 first*; history rewriting is only tidying.
 
@@ -147,26 +147,26 @@ their paid counterparts, a recorded run of a free and a paid agent on the same
 public commit (including the live bug it found), and our own account of the
 three weakest files in the pack.
 
-| | Crew (this repo) | [Crew Full — $19](https://honorboxx.github.io/honorbox/crew.html) |
+| | Crew (this repo) | [Crew Full ($19)](https://honorboxx.github.io/honorbox/crew.html) |
 |---|---|---|
 | Agents | 3: reviewer, debugger, planner | 10: + simplifier (second review pass), tester, perf, security, refactorer, docs, release captain |
 | Skills | 3: verify, scope, git | 14: + TDD, debug loop, self-review, PR authoring, changelog, release, docs pass, refactor, perf triage, security pass, handoff |
-| Hook examples | — | 3, safe and commented (git guard, secret shield, format-on-edit) |
-| CLAUDE.md starter templates | — | solo + team variants |
-| Design doc | — | ROSTER.md: every agent/skill mapped to a job and a boundary |
+| Hook examples | none | 3, safe and commented (git guard, secret shield, format-on-edit) |
+| CLAUDE.md starter templates | none | solo + team variants |
+| Design doc | none | ROSTER.md: every agent/skill mapped to a job and a boundary |
 | Installer | this one | same one, covering the full pack |
 | Updates | `git pull` | private repo access; updates land there |
 | License | MIT | per-developer commercial |
 
 Buying replaces the six free files with superset versions (added
-cross-references into the full system) — the installer handles it cleanly, and
+cross-references into the full system). The installer handles it cleanly, and
 [the exact diff is published](SAMPLES.md#1-what-buying-changes-about-the-files-you-already-have)
 so you can see precisely what changes before you pay.
 
 ## Honest limits
 
 - These improve *discipline*, not model capability. A model that can't find a
-  bug won't find it because a prompt told it to be systematic — but it will
+  bug won't find it because a prompt told it to be systematic, but it will
   stop claiming "fixed" without running the repro.
 - Agents inherit your configured model and burn tokens like any subagent;
   the reviewer pass on a big diff is not free.
@@ -175,12 +175,12 @@ so you can see precisely what changes before you pay.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
 ---
 
 *Repo description, for the fork bar: "Specialist subagents and skills for
-Claude Code — rigorous code review, systematic debugging, planning, and
+Claude Code: rigorous code review, systematic debugging, planning, and
 verification discipline. Free tier of Crew."*
 *Topics: `claude-code` `claude` `subagents` `agents` `skills` `code-review`
 `debugging` `developer-tools`*
