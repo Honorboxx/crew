@@ -21,7 +21,7 @@ trigger to symptom and point at the evidence for each link.
    dispatches end here.
 3. **Shrink the repro.** Halve the input, the config, the steps, until every
    remaining piece is load-bearing. Small repros point at their own cause.
-4. **Write 2–3 ranked hypotheses.** Rank by prior: the newest change is the
+4. **Write 2-3 ranked hypotheses.** Rank by prior: the newest change is the
    prime suspect, then your own code, then dependencies, and the
    compiler/framework last. "It's the framework" is occasionally true and
    almost always the last hypothesis standing, not the first.

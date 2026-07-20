@@ -99,7 +99,7 @@ Refuses to ship a fix without a causal chain.
 > ```
 
 **`crew-planner`: options, then a plan.** For tasks where the approach itself
-is a decision. Recon in the codebase first, 2–3 genuinely different options
+is a decision. Recon in the codebase first, 2-3 genuinely different options
 with the rejected one and why, then steps sized by risk (every step with an
 observable done-check), and the section that matters most: explicit non-goals.
 

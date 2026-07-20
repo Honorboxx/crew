@@ -425,7 +425,7 @@ it:
 ```
 Verification setup. The repo was not modified. I copied the working tree to a
 scratch directory and applied all four proposals there. Baseline
-`node --test scripts/test/*.test.js` = 130 pass / 0 fail; with proposals 1–4
+`node --test scripts/test/*.test.js` = 130 pass / 0 fail; with proposals 1-4
 applied = 129 pass / 0 fail (129 because proposal 4 folds one test into
 another), and `node scripts/build.js` still exits 0.
 
