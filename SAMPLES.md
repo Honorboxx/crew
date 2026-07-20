@@ -583,9 +583,10 @@ and says so; if you have read that page, the file adds about one idea
 (reconstructed release notes should be labelled as reconstructed).
 `crew-docs`'s centerpiece is the four-type documentation taxonomy of
 tutorial / how-to / reference / explanation, which is Divio's widely published
-system, and the current file presents it without crediting it. That is our
-mistake and the credit is being added. Both files are well written. Neither is
-as original as the pack's better half.
+system (Daniele Procida's Diátaxis). The file shipped without crediting it.
+That was our mistake, it was ours to catch and we caught it late, and the
+credit is now in the file. Both files are well written. Neither is as original
+as the pack's better half.
 
 **So the honest shape of the pack is not a flat bar.** The strongest files
 (`crew-security-pass`, `crew-tester`, `crew-perf-triage`, `crew-simplifier`)

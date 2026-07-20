@@ -103,18 +103,6 @@ is a decision. Recon in the codebase first, 2–3 genuinely different options
 with the rejected one and why, then steps sized by risk — every step with an
 observable done-check — and the section that matters most: explicit non-goals.
 
-> *Example transcript (illustrative):*
-> ```
-> > plan the move from polling to webhooks with crew-planner
->
-> ⏺ crew-planner: Option A keep polling + shrink interval (no new infra,
->   stays 30s-stale), Option B webhooks + polling fallback (chosen: real-time
->   where it matters, poller becomes the safety net), Option C webhooks only
->   (rejected: one missed delivery = silent data loss).
->   Plan: 5 steps, each with a done-check; riskiest first (signature
->   verification spike). Non-goals: no queue infra this round, no backfill.
-> ```
-
 ### Skills (disciplines you invoke inline)
 
 **`crew-verify` — evidence before claims.** The gate between finishing work
@@ -123,32 +111,11 @@ cheapest observation that would prove it, made *this session* — and includes
 the trick most setups miss: verify the verifier (green that can't go red is
 not evidence). Anything unobserved ships labeled "changed, not verified".
 
-> *Example (illustrative):*
-> ```
-> > /crew-verify then commit
-> ⏺ Claims: (1) --target flag works (2) tests pass (3) README accurate.
->   (1) ran install.sh --target /tmp/p/.claude → 6 installed, links resolve ✓
->   (2) 47 passed — then reverted the fix for one run: 2 failed ✓ tests do
->       cover the change
->   (3) re-ran all 4 README commands as written ✓
->   Committing.
-> ```
-
 **`crew-scope` — size first, then plan that much.** S/M/L sizing by counting
 plausible designs, a 5-line mini-plan for M tasks (every line objection-bait),
 dispatch the planner for L. Kills both failure modes: coding an L blind, and
 planning theater on an S. Plus the mid-task rule for "while I'm here" creep:
 park it, don't chase it.
-
-> *Example (illustrative):*
-> ```
-> > add a --json flag to the report command
-> ⏺ crew-scope: M (one approach, three files).
->   Goal: report --json emits machine-readable output, exit codes unchanged.
->   Touches: cli.py, report.py, test_report.py
->   Risk: existing consumers parse stdout — keeping default output identical.
->   Non-goal: no schema versioning this round.
-> ```
 
 **`crew-git` — history as a communication act.** Atomic commits tested by
 "can this revert alone", the staged-diff read-through (the medium switch that
@@ -156,15 +123,15 @@ catches debug prints), why-not-what messages, and a safe-repair table —
 including the rule that matters when it matters: a leaked secret is *rotated
 first*; history rewriting is only tidying.
 
-> *Example (illustrative):*
-> ```
-> > commit this
-> ⏺ crew-git: staged diff read-through first… found a stray console.log at
->   parser.js:88 and an unrelated rename mixed in. Unstaging the rename —
->   it goes in its own commit so the logic diff stays reviewable.
->   Commit 1: "Treat empty config as defaults, not error" (the why is in
->   the body). Commit 2: "Rename parse_cfg → parse_config (mechanical)".
-> ```
+Every transcript in this README is a recorded session. There are no
+illustrative examples here, because an invented transcript proves only that we
+can write one. The three skills above ship without a sample for an honest
+reason: a skill is a discipline you invoke inline rather than an agent that
+reports, so there is no artifact to record that would not be staged.
+
+Two further recorded runs, including a paid agent and the free reviewer working
+the same public commit, are in
+[SAMPLES.md](SAMPLES.md#5-a-real-run-free-and-paid-on-the-same-public-commit).
 
 ## Free vs full
 
