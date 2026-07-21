@@ -16,6 +16,12 @@ updates:
     commit-message:
       prefix: ci
     groups:
+      # init and analyze are one tool in two steps, and CodeQL refuses a
+      # mismatched pair. Dependabot counts them as two dependencies, so
+      # ungrouped it bumps one half per PR and both halves fail. Every update
+      # type, majors included: the halves cross a major together or not at all.
+      codeql-action:
+        patterns: ["github/codeql-action*"]
       actions:
         applies-to: version-updates
         update-types: [minor, patch]
