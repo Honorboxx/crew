@@ -108,7 +108,9 @@ observable done-check), and the section that matters most: explicit non-goals.
 and describing work. Turns each claim ("fixed", "passing", "works") into the
 cheapest observation that would prove it, made *this session*, and includes
 the trick most setups miss: verify the verifier (green that can't go red is
-not evidence). Anything unobserved ships labeled "changed, not verified".
+not evidence). Then it runs the other half nobody runs: the claims your change
+just *falsified* somewhere else, the counts and READMEs and screenshots no test
+covers. Anything unobserved ships labeled "changed, not verified".
 
 **`crew-scope`: size first, then plan that much.** S/M/L sizing by counting
 plausible designs, a 5-line mini-plan for M tasks (every line objection-bait),

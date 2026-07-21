@@ -79,7 +79,7 @@ $ diff crew/skills/crew-git/SKILL.md crew-full/skills/crew-git/SKILL.md
 >   (The full pre-handoff version of this read is `crew-self-review`.)
 
 $ diff crew/skills/crew-verify/SKILL.md crew-full/skills/crew-verify/SKILL.md
-62a63,67
+99a100,104
 > 
 > This gate feeds the rest of the system: the evidence you gather here is what
 > gets pasted into PR descriptions (`crew-pr`), what `crew-captain`'s preflight

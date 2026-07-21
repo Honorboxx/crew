@@ -124,8 +124,20 @@ for (const m of samples.matchAll(/^\$ diff (\S+) (\S+)\n([\s\S]*?)(?=\n\$ diff |
 // ---- 4. how many hooks we say we ship --------------------------------------
 // "Three hooks" outlived the third hook by three more, in three places at once,
 // while the pack's own hooks/README.md described five guards plus a convenience.
+// Not every shell file in hooks/ is a hook: shell-tree.sh is sourced by the
+// Bash guards and never registered against an event. The pack's own
+// hooks/README.md already says which is which, in the Event column, so read
+// that rather than keeping a second list here that can drift from it. The
+// directory scan stays: a new hook file that nobody documented is exactly the
+// drift this check exists to catch, and it still counts.
+const notHooks = new Set(
+  [...read(path.join(FULL, 'hooks', 'README.md'))
+    .matchAll(/^\|\s*`([\w-]+\.sh)`\s*\|\s*\*?\(?not a hook\)?\*?\s*\|/gim)]
+    .map((m) => m[1]),
+);
 const hooks = fs.readdirSync(path.join(FULL, 'hooks'))
-  .filter((f) => f.endsWith('.sh') && !f.startsWith('test-') && f !== 'run-tests.sh');
+  .filter((f) => f.endsWith('.sh') && !f.startsWith('test-') && f !== 'run-tests.sh')
+  .filter((f) => !notHooks.has(f));
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 for (const f of ['SAMPLES.md', 'README.md']) {
   const body = read(path.join(FREE, f));
