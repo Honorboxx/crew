@@ -1,0 +1,21 @@
+# Keeps the pinned action SHAs in codeql.yml current. Same reasoning as the
+# engine repo: the pins are correct and nothing was moving them.
+#
+# Only `github-actions`, and no `npm` entry, because there is no manifest here
+# for it to read.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:23"
+      timezone: Etc/UTC
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        applies-to: version-updates
+        update-types: [minor, patch]
